@@ -469,9 +469,25 @@ function startServer() {
 
     // Verify data exists
     const db = getDb();
-    const firCount = db.prepare('SELECT COUNT(*) as c FROM fir_records').get().c;
+    let firCount = 0;
+    try {
+        firCount = db.prepare('SELECT COUNT(*) as c FROM fir_records').get().c;
+    } catch (e) {
+        console.log('  ⚠ Database tables not initialized.');
+    }
+
     if (firCount === 0) {
-        console.log('  ⚠ No data found. Run "npm run seed" first.\n');
+        console.log('  ⚠ No data found. Seeding database automatically...');
+        try {
+            // Require the seed file to execute it
+            require('./seed-data');
+            // Re-fetch connection as seed-data closes it
+            const newDb = getDb();
+            const newCount = newDb.prepare('SELECT COUNT(*) as c FROM fir_records').get().c;
+            console.log(`  ✔ Database seeded successfully: ${newCount} FIR records`);
+        } catch (err) {
+            console.error('  ✖ Auto-seeding failed:', err.message);
+        }
     } else {
         console.log(`  ✔ Database loaded: ${firCount} FIR records`);
     }
