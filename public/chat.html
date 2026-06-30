@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KSP Crime Intelligence Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ── Auth Guard ── -->
+    <div id="authGuard" style="display:none;">
+
+    <!-- ── Tricolor Top Stripe ── -->
+    <div class="gov-tricolor-stripe" style="height: 4px; width: 100%; background: linear-gradient(to right, #FF9933 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #128807 66.6%);"></div>
+
+    <!-- ── Restricted Access Banner ── -->
+    <div class="gov-classification-banner">
+        <span>RESTRICTED ACCESS // INTERNAL KSP SECURITY CONSOLE v2.4 // SESSION LOGGED</span>
+        <span class="banner-right-telemetry">DB NODE: CONNECTED [SQLITE] • RAG CORE: ACTIVE</span>
+    </div>
+
+    <!-- ── Header ──────────────────────────────────── -->
+    <header class="app-header">
+        <div class="header-left">
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle sidebar">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="header-brand">
+                <svg class="header-logo" viewBox="0 0 100 100" width="34" height="34" fill="none">
+                    <path d="M50 5 L90 20 L90 50 Q90 80 50 95 Q10 80 10 50 L10 20 Z"
+                          fill="rgba(255,13,58,0.15)" stroke="rgba(255,13,58,0.5)" stroke-width="2"/>
+                    <polygon points="50,28 54,40 67,40 57,48 60,60 50,52 40,60 43,48 33,40 46,40"
+                             fill="#FF0D3A" opacity="0.9"/>
+                    <text x="50" y="76" text-anchor="middle" fill="rgba(255,255,255,0.7)"
+                          font-family="Inter" font-size="11" font-weight="700" letter-spacing="3">KSP</text>
+                </svg>
+                <div class="header-titles">
+                    <h1 class="header-title">Crime Intelligence Platform</h1>
+                    <p class="header-sub">Karnataka State Police</p>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-status">
+                <span class="status-dot"></span>
+                <span class="status-text">AI Online</span>
+            </div>
+            <div class="header-user" id="headerUser">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Officer</span>
+                    <span class="user-role" id="userRole">Admin</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── Main Layout ─────────────────────────────── -->
+    <div class="app-body">
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-label">Navigation</div>
+                <button class="sidebar-btn sidebar-tab-btn active" data-tab="home">
+                    <span class="sidebar-icon">
+                        <svg class="nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </span>
+                    <span>Dashboard Home</span>
+                </button>
+                <button class="sidebar-btn sidebar-tab-btn" data-tab="hotspot">
+                    <span class="sidebar-icon">
+                        <svg class="nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </span>
+                    <span>Crime Hotspots</span>
+                </button>
+                <button class="sidebar-btn sidebar-tab-btn" data-tab="chat">
+                    <span class="sidebar-icon">
+                        <svg class="nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </span>
+                    <span>AI Chat Agent</span>
+                </button>
+                <button class="sidebar-btn sidebar-tab-btn" data-tab="profile">
+                    <span class="sidebar-icon">
+                        <svg class="nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </span>
+                    <span>My Profile</span>
+                </button>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Quick Actions</div>
+                <button class="sidebar-btn sidebar-action-btn" data-query="Show me crime overview and key statistics">
+                    <span class="sidebar-icon">
+                        <svg class="nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </span>
+                    <span>Overview Stats</span>
+                </button>
+                <button class="sidebar-btn sidebar-action-btn" data-query="Show latest FIR records">
+                    <span class="sidebar-icon">
+                        <svg class="nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </span>
+                    <span>Recent FIRs</span>
+                </button>
+                <button class="sidebar-btn sidebar-action-btn" data-query="Show crime alerts and anomalies">
+                    <span class="sidebar-icon">
+                        <svg class="nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </span>
+                    <span>Alerts</span>
+                </button>
+                <button class="sidebar-btn" id="exportBtn">
+                    <span class="sidebar-icon">
+                        <svg class="nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </span>
+                    <span>Export Chat</span>
+                </button>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Settings</div>
+                <button class="sidebar-btn" id="langToggle">
+                    <span class="sidebar-icon">
+                        <svg class="nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    </span>
+                    <span id="langLabel">English</span>
+                </button>
+                <button class="sidebar-btn sidebar-btn--danger" id="logoutBtn">
+                    <span class="sidebar-icon">
+                        <svg class="nav-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    </span>
+                    <span>Logout</span>
+                </button>
+            </div>
+
+            <div class="sidebar-footer" style="padding: 16px; border-top: 1px solid var(--glass-border); margin-top: auto; font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">
+                <div style="margin-bottom: 6px; display: flex; justify-content: space-between;">
+                    <span>NODE STATE:</span>
+                    <span style="color: var(--accent-green);">SECURE</span>
+                </div>
+                <div style="margin-bottom: 6px; display: flex; justify-content: space-between;">
+                    <span>DATABASE:</span>
+                    <span>SQLite3</span>
+                </div>
+                <div style="margin-bottom: 6px; display: flex; justify-content: space-between;">
+                    <span>RAG ENGINE:</span>
+                    <span style="color: var(--accent-green);">READY</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>ID:</span>
+                    <span id="sidebarSessionId" style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">—</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- View Containers -->
+        <div class="view-container">
+            
+            <!-- ── VIEW 1: Dashboard Home ── -->
+            <section class="view-pane active" id="paneHome">
+                <div class="dashboard-header animate-fade-in">
+                    <h2 class="welcome-title">Welcome back, <span class="officer-name-highlight">Officer</span></h2>
+                    <p class="welcome-subtitle">Command Center Dashboard • State Crime Records Bureau (SCRB) • <span style="font-family: var(--font-mono); font-size: 11px; background: rgba(0, 212, 170, 0.1); color: var(--accent-green); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0, 212, 170, 0.2);">SYNCED LIVE</span></p>
+                </div>
+
+                <!-- KPI Grid -->
+                <div class="dashboard-kpis animate-fade-in">
+                    <div class="kpi-card glass-panel">
+                        <div class="kpi-icon">
+                            <svg class="kpi-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-value" id="kpiTotalCases">520</span>
+                            <span class="kpi-label">Total Crime Records</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-panel kpi-card--alert">
+                        <div class="kpi-icon">
+                            <svg class="kpi-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-value" id="kpiActiveCases">184</span>
+                            <span class="kpi-label">Active Investigations</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-panel kpi-card--success">
+                        <div class="kpi-icon">
+                            <svg class="kpi-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-value" id="kpiSolvedCases">336</span>
+                            <span class="kpi-label">Solved Cases</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-panel kpi-card--warning">
+                        <div class="kpi-icon">
+                            <svg class="kpi-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-value" id="kpiRepeatOffenders">42</span>
+                            <span class="kpi-label">Repeat Offenders</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Split Analytics Grid -->
+                <div class="dashboard-grid animate-fade-in">
+                    <!-- Top Hotspots Listing -->
+                    <div class="dashboard-card glass-panel">
+                        <h3 class="card-title">
+                            <svg class="title-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px; vertical-align:middle; display:inline-block; stroke:var(--accent-red);"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                            Highest Crime Districts
+                        </h3>
+                        <div class="district-list" id="dashboardDistricts">
+                            <!-- Populated dynamically -->
+                            <div class="district-progress-item">
+                                <div class="district-info">
+                                    <span>Bangalore Urban</span>
+                                    <span>234 cases</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div>
+                            </div>
+                            <div class="district-progress-item">
+                                <div class="district-info">
+                                    <span>Mysuru</span>
+                                    <span>98 cases</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill" style="width: 45%"></div></div>
+                            </div>
+                            <div class="district-progress-item">
+                                <div class="district-info">
+                                    <span>Kalaburagi</span>
+                                    <span>64 cases</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill" style="width: 32%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Alerts & Spikes -->
+                    <div class="dashboard-card glass-panel">
+                        <h3 class="card-title">
+                            <svg class="title-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px; vertical-align:middle; display:inline-block; stroke:var(--accent-orange);"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            Crime Spike Alerts
+                        </h3>
+                        <div class="alert-list" id="dashboardAlerts">
+                            <div class="alert-item alert-item--danger">
+                                <div class="alert-badge">CRITICAL</div>
+                                <div class="alert-info">
+                                    <h4>Chain Snatching Spike</h4>
+                                    <p>Bangalore Urban (Koramangala) • +240% increase over 7 days</p>
+                                </div>
+                            </div>
+                            <div class="alert-item alert-item--warning">
+                                <div class="alert-badge">WARNING</div>
+                                <div class="alert-info">
+                                    <h4>Cyber Fraud Rise</h4>
+                                    <p>Mysuru City • Spurt in UPI scam reports (12 new FIRs)</p>
+                                </div>
+                            </div>
+                            <div class="alert-item alert-item--info">
+                                <div class="alert-badge">TRENDING</div>
+                                <div class="alert-info">
+                                    <h4>Burglary Anomaly</h4>
+                                    <p>Belagavi District • Repeat offender active in City Sub-division</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── VIEW 2: Crime Hotspots (Tactical Map) ── -->
+            <section class="view-pane" id="paneHotspot">
+                <div class="hotspot-layout">
+                    <!-- Hotspot Sidebar (Filters) -->
+                    <div class="hotspot-control glass-panel">
+                        <h3 class="control-title">Tactical Filters</h3>
+                        <p class="control-subtitle">Select crime category to view regional hotspots</p>
+                        
+                        <div class="filter-group">
+                            <button class="filter-btn active" data-filter="All">
+                                <span class="filter-dot filter-dot--all"></span>
+                                <span>All Categories</span>
+                            </button>
+                            <button class="filter-btn" data-filter="Theft">
+                                <span class="filter-dot filter-dot--theft"></span>
+                                <span>Theft / Burglary</span>
+                            </button>
+                            <button class="filter-btn" data-filter="Murder">
+                                <span class="filter-dot filter-dot--murder"></span>
+                                <span>Murder / Violent Crime</span>
+                            </button>
+                            <button class="filter-btn" data-filter="Cyber Crime">
+                                <span class="filter-dot filter-dot--cyber"></span>
+                                <span>Cyber Fraud</span>
+                            </button>
+                            <button class="filter-btn" data-filter="Robbery">
+                                <span class="filter-dot filter-dot--robbery"></span>
+                                <span>Robbery</span>
+                            </button>
+                            <button class="filter-btn" data-filter="Assault">
+                                <span class="filter-dot filter-dot--assault"></span>
+                                <span>Assault</span>
+                            </button>
+                        </div>
+
+                        <!-- Scan Status Panel -->
+                        <div class="scan-status-panel glass-panel-nested">
+                            <div class="scan-header">
+                                <span class="scan-pulse"></span>
+                                <span>GEOSPATIAL SCANNING...</span>
+                            </div>
+                            <div class="scan-details">
+                                <p>Coverage: <strong>Karnataka State</strong></p>
+                                <p>Active Nodes: <strong>31 Districts</strong></p>
+                                <p>Filtered Cases: <strong id="hotspotCountText">520</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map Container -->
+                    <div class="hotspot-display glass-panel">
+                        <!-- Canvas for Google Earth Style Wireframe Globe Intro -->
+                        <div class="globe-overlay" id="globeOverlay">
+                            <canvas id="globeCanvas"></canvas>
+                            <div class="globe-lock-msg">
+                                <div class="scanning-lines"></div>
+                                <div class="lock-indicator"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="title-svg" style="margin-right:6px; vertical-align:middle; display:inline-block;"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>SATELLITE SCAN: LOCKED ON KARNATAKA</div>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Map Wrapper -->
+                        <div class="map-view-wrapper" id="mapViewWrapper">
+                            <div class="map-controls">
+                                <button class="map-zoom-btn" id="mapZoomIn" title="Zoom In">+</button>
+                                <button class="map-zoom-btn" id="mapZoomOut" title="Zoom Out">-</button>
+                                <button class="map-zoom-btn" id="mapZoomReset" title="Reset View">⟲</button>
+                            </div>
+                            
+                            <!-- Tactical SVG Karnataka Map -->
+                            <div class="svg-map-container" id="svgMapContainer">
+                                <svg id="karnatakaMap" viewBox="0 0 500 600" width="100%" height="100%">
+                                    <!-- Karnataka Styled Geometric Boundaries -->
+                                    <g id="districtsGroup">
+                                        <!-- Outer Glow Outline -->
+                                        <path class="ksp-boundary" d="M160,20 L280,20 L370,10 L390,30 L380,80 L350,90 L360,140 L340,160 L320,160 L330,220 L310,230 L290,310 L310,400 L370,410 L390,460 L330,480 L290,560 L240,580 L190,520 L130,420 L120,340 L170,180 Z" />
+
+                                        <!-- District Center Points (Glowing Hotspots) -->
+                                        <!-- Interactive District Node Groups (Polygons + Hotspots) -->
+                                        <g id="hotspotsGroup">
+                                            <!-- Bidar -->
+                                            <g class="map-node" data-district="Bidar" data-x="370" data-y="30">
+                                                <polygon class="map-district" points="350,10 390,30 380,60 340,50" />
+                                                <circle class="hotspot-base" cx="370" cy="30" r="5" />
+                                                <circle class="hotspot-pulse" cx="370" cy="30" r="5" />
+                                                <circle class="hotspot-core" cx="370" cy="30" r="2" />
+                                                <text class="node-label" x="370" y="20" text-anchor="middle">Bidar</text>
+                                            </g>
+                                            <!-- Vijayapura -->
+                                            <g class="map-node" data-district="Vijayapura" data-x="250" data-y="70">
+                                                <polygon class="map-district" points="220,50 280,20 330,90 280,100" />
+                                                <circle class="hotspot-base" cx="250" cy="70" r="6" />
+                                                <circle class="hotspot-pulse" cx="250" cy="70" r="6" />
+                                                <circle class="hotspot-core" cx="250" cy="70" r="2" />
+                                                <text class="node-label" x="250" y="60" text-anchor="middle">Vijayapura</text>
+                                            </g>
+                                            <!-- Kalaburagi -->
+                                            <g class="map-node" data-district="Kalaburagi" data-x="350" data-y="80">
+                                                <polygon class="map-district" points="340,50 380,60 380,80 350,110 330,90" />
+                                                <circle class="hotspot-base" cx="350" cy="80" r="11" />
+                                                <circle class="hotspot-pulse" cx="350" cy="80" r="11" />
+                                                <circle class="hotspot-core" cx="350" cy="80" r="3" />
+                                                <text class="node-label" x="350" y="70" text-anchor="middle">Kalaburagi</text>
+                                            </g>
+                                            <!-- Belagavi -->
+                                            <g class="map-node" data-district="Belagavi" data-x="150" data-y="100">
+                                                <polygon class="map-district" points="160,20 220,50 190,110 130,130 140,70" />
+                                                <circle class="hotspot-base" cx="150" cy="100" r="10" />
+                                                <circle class="hotspot-pulse" cx="150" cy="100" r="10" />
+                                                <circle class="hotspot-core" cx="150" cy="100" r="3" />
+                                                <text class="node-label" x="150" y="90" text-anchor="middle">Belagavi</text>
+                                            </g>
+                                            <!-- Bagalkote -->
+                                            <g class="map-node" data-district="Bagalkote" data-x="230" data-y="120">
+                                                <polygon class="map-district" points="190,110 280,100 280,140 210,150" />
+                                                <circle class="hotspot-base" cx="230" cy="120" r="6" />
+                                                <circle class="hotspot-pulse" cx="230" cy="120" r="6" />
+                                                <circle class="hotspot-core" cx="230" cy="120" r="2" />
+                                                <text class="node-label" x="230" y="110" text-anchor="middle">Bagalkote</text>
+                                            </g>
+                                            <!-- Yadgir -->
+                                            <g class="map-node" data-district="Yadgir" data-x="360" data-y="130">
+                                                <polygon class="map-district" points="350,110 380,80 360,140 330,150 320,130" />
+                                                <circle class="hotspot-base" cx="360" cy="130" r="5" />
+                                                <circle class="hotspot-pulse" cx="360" cy="130" r="5" />
+                                                <circle class="hotspot-core" cx="360" cy="130" r="2" />
+                                                <text class="node-label" x="360" y="120" text-anchor="middle">Yadgir</text>
+                                            </g>
+                                            <!-- Raichur -->
+                                            <g class="map-node" data-district="Raichur" data-x="330" data-y="150">
+                                                <polygon class="map-district" points="320,130 360,140 340,160 320,180 290,160" />
+                                                <circle class="hotspot-base" cx="330" cy="150" r="5" />
+                                                <circle class="hotspot-pulse" cx="330" cy="150" r="5" />
+                                                <circle class="hotspot-core" cx="330" cy="150" r="2" />
+                                                <text class="node-label" x="330" y="140" text-anchor="middle">Raichur</text>
+                                            </g>
+                                            <!-- Dharwad -->
+                                            <g class="map-node" data-district="Dharwad" data-x="170" data-y="180">
+                                                <polygon class="map-district" points="150,160 190,170 190,210 150,200" />
+                                                <circle class="hotspot-base" cx="170" cy="180" r="8" />
+                                                <circle class="hotspot-pulse" cx="170" cy="180" r="8" />
+                                                <circle class="hotspot-core" cx="170" cy="180" r="3" />
+                                                <text class="node-label" x="170" y="170" text-anchor="middle">Dharwad</text>
+                                            </g>
+                                            <!-- Gadag -->
+                                            <g class="map-node" data-district="Gadag" data-x="210" data-y="190">
+                                                <polygon class="map-district" points="190,170 250,170 250,220 190,210" />
+                                                <circle class="hotspot-base" cx="210" cy="190" r="5" />
+                                                <circle class="hotspot-pulse" cx="210" cy="190" r="5" />
+                                                <circle class="hotspot-core" cx="210" cy="190" r="2" />
+                                                <text class="node-label" x="210" y="180" text-anchor="middle">Gadag</text>
+                                            </g>
+                                            <!-- Koppal -->
+                                            <g class="map-node" data-district="Koppal" data-x="270" data-y="200">
+                                                <polygon class="map-district" points="250,170 290,160 310,210 250,220" />
+                                                <circle class="hotspot-base" cx="270" cy="200" r="5" />
+                                                <circle class="hotspot-pulse" cx="270" cy="200" r="5" />
+                                                <circle class="hotspot-core" cx="270" cy="200" r="2" />
+                                                <text class="node-label" x="270" y="190" text-anchor="middle">Koppal</text>
+                                            </g>
+                                            <!-- Vijayanagara -->
+                                            <g class="map-node" data-district="Vijayanagara" data-x="290" data-y="220">
+                                                <polygon class="map-district" points="260,210 320,200 310,240 260,250" />
+                                                <circle class="hotspot-base" cx="290" cy="220" r="5" />
+                                                <circle class="hotspot-pulse" cx="290" cy="220" r="5" />
+                                                <circle class="hotspot-core" cx="290" cy="220" r="2" />
+                                                <text class="node-label" x="290" y="210" text-anchor="middle">Vijayanagara</text>
+                                            </g>
+                                            <!-- Ballari -->
+                                            <g class="map-node" data-district="Ballari" data-x="320" data-y="230">
+                                                <polygon class="map-district" points="310,200 330,220 310,260 290,240" />
+                                                <circle class="hotspot-base" cx="320" cy="230" r="7" />
+                                                <circle class="hotspot-pulse" cx="320" cy="230" r="7" />
+                                                <circle class="hotspot-core" cx="320" cy="230" r="2.5" />
+                                                <text class="node-label" x="320" y="220" text-anchor="middle">Ballari</text>
+                                            </g>
+                                            <!-- Uttara Kannada -->
+                                            <g class="map-node" data-district="Uttara Kannada" data-x="130" data-y="240">
+                                                <polygon class="map-district" points="130,200 160,210 170,260 120,270" />
+                                                <circle class="hotspot-base" cx="130" cy="240" r="5" />
+                                                <circle class="hotspot-pulse" cx="130" cy="240" r="5" />
+                                                <circle class="hotspot-core" cx="130" cy="240" r="2" />
+                                                <text class="node-label" x="130" y="230" text-anchor="middle">Karwar</text>
+                                            </g>
+                                            <!-- Haveri -->
+                                            <g class="map-node" data-district="Haveri" data-x="200" data-y="240">
+                                                <polygon class="map-district" points="170,210 220,220 220,260 160,260" />
+                                                <circle class="hotspot-base" cx="200" cy="240" r="5" />
+                                                <circle class="hotspot-pulse" cx="200" cy="240" r="5" />
+                                                <circle class="hotspot-core" cx="200" cy="240" r="2" />
+                                                <text class="node-label" x="200" y="230" text-anchor="middle">Haveri</text>
+                                            </g>
+                                            <!-- Davanagere -->
+                                            <g class="map-node" data-district="Davanagere" data-x="240" data-y="270">
+                                                <polygon class="map-district" points="220,260 270,250 270,290 210,300" />
+                                                <circle class="hotspot-base" cx="240" cy="270" r="6" />
+                                                <circle class="hotspot-pulse" cx="240" cy="270" r="6" />
+                                                <circle class="hotspot-core" cx="240" cy="270" r="2" />
+                                                <text class="node-label" x="240" y="260" text-anchor="middle">Davanagere</text>
+                                            </g>
+                                            <!-- Shivamogga -->
+                                            <g class="map-node" data-district="Shivamogga" data-x="180" data-y="300">
+                                                <polygon class="map-district" points="150,260 210,260 210,320 150,330" />
+                                                <circle class="hotspot-base" cx="180" cy="300" r="7" />
+                                                <circle class="hotspot-pulse" cx="180" cy="300" r="7" />
+                                                <circle class="hotspot-core" cx="180" cy="300" r="2.5" />
+                                                <text class="node-label" x="180" y="290" text-anchor="middle">Shivamogga</text>
+                                            </g>
+                                            <!-- Chitradurga -->
+                                            <g class="map-node" data-district="Chitradurga" data-x="280" data-y="310">
+                                                <polygon class="map-district" points="270,280 310,270 320,330 260,330" />
+                                                <circle class="hotspot-base" cx="280" cy="310" r="6" />
+                                                <circle class="hotspot-pulse" cx="280" cy="310" r="6" />
+                                                <circle class="hotspot-core" cx="280" cy="310" r="2" />
+                                                <text class="node-label" x="280" y="300" text-anchor="middle">Chitradurga</text>
+                                            </g>
+                                            <!-- Udupi -->
+                                            <g class="map-node" data-district="Udupi" data-x="120" data-y="350">
+                                                <polygon class="map-district" points="110,310 150,330 140,370 100,350" />
+                                                <circle class="hotspot-base" cx="120" cy="350" r="5" />
+                                                <circle class="hotspot-pulse" cx="120" cy="350" r="5" />
+                                                <circle class="hotspot-core" cx="120" cy="350" r="2" />
+                                                <text class="node-label" x="120" y="340" text-anchor="middle">Udupi</text>
+                                            </g>
+                                            <!-- Chikkamagaluru -->
+                                            <g class="map-node" data-district="Chikkamagaluru" data-x="190" data-y="360">
+                                                <polygon class="map-district" points="160,330 220,340 210,390 150,380" />
+                                                <circle class="hotspot-base" cx="190" cy="360" r="5" />
+                                                <circle class="hotspot-pulse" cx="190" cy="360" r="5" />
+                                                <circle class="hotspot-core" cx="190" cy="360" r="2" />
+                                                <text class="node-label" x="190" y="350" text-anchor="middle">Chikkamagaluru</text>
+                                            </g>
+                                            <!-- Tumakuru -->
+                                            <g class="map-node" data-district="Tumakuru" data-x="300" data-y="400">
+                                                <polygon class="map-district" points="260,350 330,360 320,430 250,420" />
+                                                <circle class="hotspot-base" cx="300" cy="400" r="6" />
+                                                <circle class="hotspot-pulse" cx="300" cy="400" r="6" />
+                                                <circle class="hotspot-core" cx="300" cy="400" r="2" />
+                                                <text class="node-label" x="300" y="390" text-anchor="middle">Tumakuru</text>
+                                            </g>
+                                            <!-- Chikkaballapura -->
+                                            <g class="map-node" data-district="Chikkaballapura" data-x="365" data-y="410">
+                                                <polygon class="map-district" points="340,380 390,390 380,430 330,420" />
+                                                <circle class="hotspot-base" cx="365" cy="410" r="5" />
+                                                <circle class="hotspot-pulse" cx="365" cy="410" r="5" />
+                                                <circle class="hotspot-core" cx="365" cy="410" r="2" />
+                                                <text class="node-label" x="365" y="400" text-anchor="middle">Chikkaballapura</text>
+                                            </g>
+                                            <!-- Dakshina Kannada -->
+                                            <g class="map-node" data-district="Dakshina Kannada" data-x="140" data-y="420">
+                                                <polygon class="map-district" points="120,390 170,400 160,450 110,440" />
+                                                <circle class="hotspot-base" cx="140" cy="420" r="8" />
+                                                <circle class="hotspot-pulse" cx="140" cy="420" r="8" />
+                                                <circle class="hotspot-core" cx="140" cy="420" r="3" />
+                                                <text class="node-label" x="140" y="410" text-anchor="middle">Mangaluru</text>
+                                            </g>
+                                            <!-- Hassan -->
+                                            <g class="map-node" data-district="Hassan" data-x="210" data-y="430">
+                                                <polygon class="map-district" points="170,400 240,410 230,460 160,450" />
+                                                <circle class="hotspot-base" cx="210" cy="430" r="5" />
+                                                <circle class="hotspot-pulse" cx="210" cy="430" r="5" />
+                                                <circle class="hotspot-core" cx="210" cy="430" r="2" />
+                                                <text class="node-label" x="210" y="420" text-anchor="middle">Hassan</text>
+                                            </g>
+                                            <!-- Kolar -->
+                                            <g class="map-node" data-district="Kolar" data-x="390" data-y="460">
+                                                <polygon class="map-district" points="370,430 400,440 390,480 350,470" />
+                                                <circle class="hotspot-base" cx="390" cy="460" r="5" />
+                                                <circle class="hotspot-pulse" cx="390" cy="460" r="5" />
+                                                <circle class="hotspot-core" cx="390" cy="460" r="2" />
+                                                <text class="node-label" x="390" y="450" text-anchor="middle">Kolar</text>
+                                            </g>
+                                            <!-- Bengaluru Rural -->
+                                            <g class="map-node" data-district="Bengaluru Rural" data-x="350" data-y="460">
+                                                <polygon class="map-district" points="330,430 370,440 370,480 320,490" />
+                                                <circle class="hotspot-base" cx="350" cy="460" r="5" />
+                                                <circle class="hotspot-pulse" cx="350" cy="460" r="5" />
+                                                <circle class="hotspot-core" cx="350" cy="460" r="2" />
+                                                <text class="node-label" x="350" y="450" text-anchor="middle">Blr Rural</text>
+                                            </g>
+                                            <!-- Mandya -->
+                                            <g class="map-node" data-district="Mandya" data-x="260" data-y="480">
+                                                <polygon class="map-district" points="230,460 280,460 270,510 220,500" />
+                                                <circle class="hotspot-base" cx="260" cy="480" r="6" />
+                                                <circle class="hotspot-pulse" cx="260" cy="480" r="6" />
+                                                <circle class="hotspot-core" cx="260" cy="480" r="2" />
+                                                <text class="node-label" x="260" y="470" text-anchor="middle">Mandya</text>
+                                            </g>
+                                            <!-- Bengaluru Urban -->
+                                            <g class="map-node" data-district="Bengaluru Urban" data-x="330" data-y="480">
+                                                <polygon class="map-district" points="320,470 340,470 340,490 320,490" />
+                                                <circle class="hotspot-base" cx="330" cy="480" r="14" />
+                                                <circle class="hotspot-pulse" cx="330" cy="480" r="14" />
+                                                <circle class="hotspot-core" cx="330" cy="480" r="4" />
+                                                <text class="node-label" x="330" y="470" text-anchor="middle">Bengaluru</text>
+                                            </g>
+                                            <!-- Ramanagara -->
+                                            <g class="map-node" data-district="Ramanagara" data-x="300" data-y="485">
+                                                <polygon class="map-district" points="280,460 320,470 310,510 270,500" />
+                                                <circle class="hotspot-base" cx="300" cy="485" r="5" />
+                                                <circle class="hotspot-pulse" cx="300" cy="485" r="5" />
+                                                <circle class="hotspot-core" cx="300" cy="485" r="2" />
+                                                <text class="node-label" x="300" y="475" text-anchor="middle">Ramanagara</text>
+                                            </g>
+                                            <!-- Kodagu -->
+                                            <g class="map-node" data-district="Kodagu" data-x="180" data-y="490">
+                                                <polygon class="map-district" points="150,460 200,470 190,520 140,510" />
+                                                <circle class="hotspot-base" cx="180" cy="490" r="5" />
+                                                <circle class="hotspot-pulse" cx="180" cy="490" r="5" />
+                                                <circle class="hotspot-core" cx="180" cy="490" r="2" />
+                                                <text class="node-label" x="180" y="480" text-anchor="middle">Madikeri</text>
+                                            </g>
+                                            <!-- Mysuru -->
+                                            <g class="map-node" data-district="Mysuru" data-x="230" data-y="520">
+                                                <polygon class="map-district" points="200,500 260,510 250,550 190,540" />
+                                                <circle class="hotspot-base" cx="230" cy="520" r="9" />
+                                                <circle class="hotspot-pulse" cx="230" cy="520" r="9" />
+                                                <circle class="hotspot-core" cx="230" cy="520" r="3" />
+                                                <text class="node-label" x="230" y="510" text-anchor="middle">Mysuru</text>
+                                            </g>
+                                            <!-- Chamarajanagar -->
+                                            <g class="map-node" data-district="Chamarajanagar" data-x="280" data-y="560">
+                                                <polygon class="map-district" points="250,540 290,550 280,590 230,580" />
+                                                <circle class="hotspot-base" cx="280" cy="560" r="5" />
+                                                <circle class="hotspot-pulse" cx="280" cy="560" r="5" />
+                                                <circle class="hotspot-core" cx="280" cy="560" r="2" />
+                                                <text class="node-label" x="280" y="550" text-anchor="middle">Chamarajanagar</text>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </div>
+
+                            <!-- Map Tooltip Panel (Goggles-Style HUD) -->
+                            <div class="map-hud-panel" id="mapHudPanel" style="display:none;">
+                                <div class="hud-header">
+                                    <span id="hudDistrictName">District</span>
+                                    <button class="hud-close-btn" id="hudCloseBtn">×</button>
+                                </div>
+                                <div class="hud-body">
+                                    <p>Total Crimes: <strong id="hudTotalCrimes">0</strong></p>
+                                    <p>Top Offense: <strong id="hudTopCrime">Theft</strong></p>
+                                    <p>Risk Index: <span id="hudRiskIndex">Normal</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── VIEW 3: Conversational AI Chat Agent ── -->
+            <section class="view-pane" id="paneChat">
+                <div class="chat-main-wrapper">
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Messages rendered here by JS -->
+                    </div>
+
+                    <!-- Gemini Animation Typing Indicator -->
+                    <div class="typing-indicator" id="typingIndicator">
+                        <div class="gemini-spark">
+                            <svg viewBox="0 0 24 24" class="gemini-spark-svg">
+                                <defs>
+                                    <linearGradient id="geminiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#FF0D3A" />
+                                        <stop offset="50%" stop-color="#FF6B35" />
+                                        <stop offset="100%" stop-color="#FF5E7E" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M12 2C12 2 12 9 9 12C12 15 12 22 12 22C12 22 12 15 15 12C12 9 12 2 12 2Z" fill="url(#geminiGrad)"/>
+                                <path d="M19 8C19 8 19 11 17.5 12.5C19 14 19 17 19 17C19 17 19 14 20.5 12.5C19 11 19 8 19 8Z" fill="url(#geminiGrad)" opacity="0.75"/>
+                            </svg>
+                        </div>
+                        <div class="typing-text-msg">KSP Intelligence compiling response...</div>
+                    </div>
+
+                    <!-- Input area -->
+                    <div class="chat-input-area">
+                        <!-- Suggestion chips -->
+                        <div class="suggestion-chips" id="suggestionChips">
+                            <button class="chip" data-query="Crime stats for this month">Crime stats</button>
+                            <button class="chip" data-query="Show latest FIR records">Recent FIRs</button>
+                            <button class="chip" data-query="Top districts by crime rate">Top districts</button>
+                            <button class="chip" data-query="Show repeat offenders">Repeat offenders</button>
+                            <button class="chip" data-query="Theft cases in Bangalore">Bangalore thefts</button>
+                            <button class="chip" data-query="Crime trend analysis">Trends</button>
+                        </div>
+
+                        <!-- Gemini Wave Audio Visualizer (shown during speech output or processing) -->
+                        <div class="gemini-wave-bar" id="geminiWaveBar" style="display:none;">
+                            <div class="wave-line"></div>
+                            <div class="wave-line"></div>
+                            <div class="wave-line"></div>
+                            <div class="wave-line"></div>
+                            <div class="wave-line"></div>
+                            <div class="wave-line"></div>
+                        </div>
+
+                        <div class="chat-input-row">
+                            <button class="voice-btn" id="voiceBtn" aria-label="Voice input" title="Hold to speak">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                            </button>
+                            <input type="text" class="chat-input" id="chatInput"
+                                   placeholder="Ask about crime data, FIR records, suspect networks..."
+                                   autocomplete="off">
+                            <button class="send-btn" id="sendBtn" aria-label="Send message">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"/>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── VIEW 4: Officer Profile ── -->
+            <section class="view-pane" id="paneProfile">
+                <div class="profile-layout animate-fade-in">
+                    <!-- Styled Digital Police Shield Badge -->
+                    <div class="profile-badge-card glass-panel">
+                        <div class="badge-emblem">
+                            <svg viewBox="0 0 100 100" width="80" height="80" fill="none">
+                                <path d="M50 5 L90 20 L90 50 Q90 80 50 95 Q10 80 10 50 L10 20 Z"
+                                      fill="rgba(255,13,58,0.2)" stroke="#FF0D3A" stroke-width="2.5"/>
+                                <polygon points="50,28 54,40 67,40 57,48 60,60 50,52 40,60 43,48 33,40 46,40"
+                                         fill="#FF0D3A"/>
+                            </svg>
+                        </div>
+                        <h3 class="badge-title">Karnataka State Police</h3>
+                        <p class="badge-subtitle">State Crime Records Bureau</p>
+                        
+                        <div class="badge-meta">
+                            <div class="meta-row">
+                                <span>OFFICER NAME:</span>
+                                <strong id="profileName">Officer</strong>
+                            </div>
+                            <div class="meta-row">
+                                <span>BADGE NUMBER:</span>
+                                <strong>KSP-947-BLR</strong>
+                            </div>
+                            <div class="meta-row">
+                                <span>ROLE RANK:</span>
+                                <strong id="profileRole">Admin</strong>
+                            </div>
+                            <div class="meta-row">
+                                <span>ASSIGNED DIVISION:</span>
+                                <strong>Bangalore City Headquarters</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session and Security Details -->
+                    <div class="profile-details-panel glass-panel">
+                        <h3 class="panel-title">
+                            <svg class="title-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px; vertical-align:middle; display:inline-block; stroke:var(--accent-red);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            Security & Sessions
+                        </h3>
+                        <div class="session-info-grid">
+                            <div class="info-cell">
+                                <span class="cell-label">CURRENT GATEWAY</span>
+                                <span class="cell-val">SKView Hybrid Gate v2</span>
+                            </div>
+                            <div class="info-cell">
+                                <span class="cell-label">SESSION STATUS</span>
+                                <span class="cell-val cell-val--active">ACTIVE SECURE</span>
+                            </div>
+                            <div class="info-cell">
+                                <span class="cell-label">ENCRYPTION LEVEL</span>
+                                <span class="cell-val">AES-256 GCM</span>
+                            </div>
+                            <div class="info-cell">
+                                <span class="cell-label">ACCESSIBILITY PROTOCOL</span>
+                                <span class="cell-val">Explainable AI Audit Logged</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button class="profile-btn" id="profileExportBtn">Export Full Logs</button>
+                            <button class="profile-btn profile-btn--danger" id="profileLogoutBtn">Terminate Session</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-bottom-nav">
+        <button class="nav-item active" data-tab="home">
+            <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </span>
+            <span class="nav-text">Home</span>
+        </button>
+        <button class="nav-item" data-tab="hotspot">
+            <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </span>
+            <span class="nav-text">Hotspots</span>
+        </button>
+        <button class="nav-item" data-tab="chat">
+            <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </span>
+            <span class="nav-text">AI Chat</span>
+        </button>
+        <button class="nav-item" data-tab="profile">
+            <span class="nav-icon">
+                <svg class="nav-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <span class="nav-text">Profile</span>
+        </button>
+    </nav>
+
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    </div><!-- /authGuard -->
+
+    <!-- Scripts -->
+    <script src="js/voice.js"></script>
+    <script src="js/pdf-export.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>
