@@ -22,7 +22,7 @@ const { getDb, initializeDb } = require('./database');
 const { processQuery } = require('./ai-engine');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.X_ZOHO_CATALYST_LISTEN_PORT || process.env.PORT || 3000;
 
 /* ═══════════════════════════════════════════════════════════════════════════════
  *  MIDDLEWARE
@@ -492,9 +492,9 @@ function startServer() {
         console.log(`  ✔ Database loaded: ${firCount} FIR records`);
     }
 
-    app.listen(PORT, () => {
-        console.log(`  ✔ Server running on http://localhost:${PORT}`);
-        console.log(`  ✔ API ready at http://localhost:${PORT}/api`);
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`  ✔ Server running on http://0.0.0.0:${PORT}`);
+        console.log(`  ✔ API ready at http://0.0.0.0:${PORT}/api`);
         console.log('\n  Routes:');
         console.log('    POST /api/auth/login          — Login');
         console.log('    GET  /api/auth/me              — Current user');
