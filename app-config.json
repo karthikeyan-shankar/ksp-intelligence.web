@@ -1,0 +1,6 @@
+{
+    "stack": "node18",
+    "env_variables": {},
+    "command": "npm start",
+    "memory": 256
+}
