@@ -1,0 +1,5 @@
+node_modules/
+.env
+.git/
+.catalyst/
+ksp_crime.db
