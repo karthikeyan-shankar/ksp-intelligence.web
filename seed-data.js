@@ -400,8 +400,8 @@ function generateUsers() {
 /* ═══════════════════════════════════════════════════════════════════════════════
  *  MAIN SEED FUNCTION
  * ═══════════════════════════════════════════════════════════════════════════════ */
-function seed() {
-    const db = initializeDb();
+async function seed() {
+    const db = await initializeDb();
 
     // Clear existing data
     console.log('  ⟳ Clearing existing data...');
@@ -478,9 +478,20 @@ function seed() {
     console.log('║     inspector/ inspect123  (Inspector)                   ║');
     console.log('║     analyst  / data123     (Data Analyst)                ║');
     console.log('╚═══════════════════════════════════════════════════════════╝\n');
-
-    closeDb();
+    // Only close if running standalone (not imported by server.js)
+    // With in-memory sql.js, closing destroys all data
+    if (require.main === module) {
+        closeDb();
+    }
 }
 
-// Run
-seed();
+// Export seed for use by server.js, auto-run when called directly
+module.exports = { seed };
+
+if (require.main === module) {
+    seed().catch(err => {
+        console.error('Seed failed:', err);
+        process.exit(1);
+    });
+}
+

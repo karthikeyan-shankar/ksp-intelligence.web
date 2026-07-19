@@ -458,7 +458,7 @@ app.get('*', (req, res) => {
 /* ═══════════════════════════════════════════════════════════════════════════════
  *  SERVER START
  * ═══════════════════════════════════════════════════════════════════════════════ */
-function startServer() {
+async function startServer() {
     try {
         // Initialize database
         console.log('\n╔═══════════════════════════════════════════════════════════╗');
@@ -466,7 +466,7 @@ function startServer() {
         console.log('╚═══════════════════════════════════════════════════════════╝\n');
 
         console.log('  ⟳ Initializing database...');
-        initializeDb();
+        await initializeDb();
 
         // Verify data exists
         const db = getDb();
@@ -480,12 +480,14 @@ function startServer() {
         if (firCount === 0) {
             console.log('  ⚠ No data found. Seeding database automatically...');
             try {
-                require('./seed-data');
+                const { seed } = require('./seed-data');
+                await seed();
                 const newDb = getDb();
                 const newCount = newDb.prepare('SELECT COUNT(*) as c FROM fir_records').get().c;
                 console.log(`  ✔ Database seeded successfully: ${newCount} FIR records`);
             } catch (err) {
                 console.error('  ✖ Auto-seeding failed:', err.message);
+                console.error(err.stack);
             }
         } else {
             console.log(`  ✔ Database loaded: ${firCount} FIR records`);
@@ -507,3 +509,4 @@ function startServer() {
 }
 
 startServer();
+

@@ -1,56 +1,126 @@
-/* ═══════════════════════════════════════════════════════════════════════════════
- *  KSP CRIME DATABASE — Database Module
- * ═══════════════════════════════════════════════════════════════════════════════
- *  SQLite database setup using better-sqlite3.
- *  Creates all tables for: FIR records, suspects, conversations, users.
- *  Zero-config — database file is auto-created on first run.
- * ═══════════════════════════════════════════════════════════════════════════════ */
-
-const Database = require('better-sqlite3');
+const initSqlJs = require('sql.js');
 const path = require('path');
 const os = require('os');
 
-/* ── Database file path ───────────────────────────────────────────────────── */
 const DB_PATH = process.env.X_ZOHO_CATALYST_LISTEN_PORT
     ? path.join(os.tmpdir(), 'ksp_crime.db')
     : path.join(__dirname, 'ksp_crime.db');
 
-/** @type {Database.Database | null} */
 let dbInstance = null;
 
-/* ═══════════════════════════════════════════════════════════════════════════════
- *  getDb() — Returns the singleton database instance
- * ═══════════════════════════════════════════════════════════════════════════════
- *  Creates the connection on first call, reuses it afterwards.
- *  WAL mode is enabled for better concurrent read performance.
- * ═══════════════════════════════════════════════════════════════════════════════ */
+class DbWrapper {
+    constructor(db) {
+        this.db = db;
+    }
+
+    _formatSql(sql) {
+        // Convert @param to $param
+        return sql.replace(/@(\w+)/g, '$$$1');
+    }
+
+    _formatParams(params) {
+        if (params === undefined || params === null) return {};
+        if (typeof params !== 'object') return [params];
+        if (Array.isArray(params)) return params;
+        
+        const formatted = {};
+        for (const [key, value] of Object.entries(params)) {
+            const newKey = key.startsWith('$') || key.startsWith(':') ? key : '$' + key;
+            formatted[newKey] = value;
+        }
+        return formatted;
+    }
+
+    prepare(sql) {
+        const formattedSql = this._formatSql(sql);
+        const self = this;
+        
+        return {
+            all: (params) => {
+                const stmt = self.db.prepare(formattedSql);
+                try {
+                    stmt.bind(self._formatParams(params));
+                    const results = [];
+                    while (stmt.step()) {
+                        results.push(stmt.getAsObject());
+                    }
+                    return results;
+                } finally {
+                    stmt.free();
+                }
+            },
+            get: (params) => {
+                const stmt = self.db.prepare(formattedSql);
+                try {
+                    stmt.bind(self._formatParams(params));
+                    if (stmt.step()) {
+                        return stmt.getAsObject();
+                    }
+                    return undefined;
+                } finally {
+                    stmt.free();
+                }
+            },
+            run: (params) => {
+                const stmt = self.db.prepare(formattedSql);
+                try {
+                    stmt.run(self._formatParams(params));
+                    return { changes: self.db.getRowsModified() };
+                } finally {
+                    stmt.free();
+                }
+            }
+        };
+    }
+
+    exec(sql) {
+        this.db.exec(sql);
+    }
+
+    pragma(str) {
+        this.db.exec(`PRAGMA ${str}`);
+    }
+
+    transaction(fn) {
+        return (...args) => {
+            this.exec('BEGIN TRANSACTION');
+            try {
+                const result = fn(...args);
+                this.exec('COMMIT');
+                return result;
+            } catch (err) {
+                this.exec('ROLLBACK');
+                throw err;
+            }
+        };
+    }
+
+    close() {
+        this.db.close();
+    }
+}
+
 function getDb() {
     if (!dbInstance) {
-        dbInstance = new Database(DB_PATH);
-        // Enable WAL mode for better read concurrency
-        dbInstance.pragma('journal_mode = WAL');
-        // Enable foreign keys
-        dbInstance.pragma('foreign_keys = ON');
+        throw new Error('Database not initialized. Call initializeDb() first.');
     }
     return dbInstance;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
- *  initializeDb() — Creates all tables if they don't exist
- * ═══════════════════════════════════════════════════════════════════════════════
- *  Safe to call multiple times — uses IF NOT EXISTS.
- *  Tables:
- *    • fir_records    — First Information Reports (core crime data)
- *    • suspects       — Known suspects / persons of interest
- *    • fir_suspects   — Many-to-many link between FIRs and suspects
- *    • conversations  — Chat history for the AI assistant
- *    • users          — Platform users (officers, analysts, admins)
- * ═══════════════════════════════════════════════════════════════════════════════ */
-function initializeDb() {
-    const db = getDb();
+async function initializeDb() {
+    if (dbInstance) {
+        return dbInstance;
+    }
 
-    /* ── FIR Records ──────────────────────────────────────────────────────── */
-    db.exec(`
+    const SQL = await initSqlJs();
+    // Use an in-memory database as requested, DB_PATH is kept for env consistency
+    const db = new SQL.Database();
+    dbInstance = new DbWrapper(db);
+
+    dbInstance.pragma('journal_mode = WAL');
+    dbInstance.pragma('foreign_keys = ON');
+
+    dbInstance.exec(`
         CREATE TABLE IF NOT EXISTS fir_records (
             fir_id          TEXT PRIMARY KEY,
             fir_number      TEXT UNIQUE,
@@ -69,11 +139,8 @@ function initializeDb() {
             location_lng    REAL,
             description     TEXT,
             created_at      TEXT DEFAULT (datetime('now'))
-        )
-    `);
+        );
 
-    /* ── Suspects ─────────────────────────────────────────────────────────── */
-    db.exec(`
         CREATE TABLE IF NOT EXISTS suspects (
             suspect_id      TEXT PRIMARY KEY,
             name            TEXT NOT NULL,
@@ -87,11 +154,8 @@ function initializeDb() {
             risk_score      REAL DEFAULT 0,
             modus_operandi  TEXT,
             created_at      TEXT DEFAULT (datetime('now'))
-        )
-    `);
+        );
 
-    /* ── FIR ↔ Suspect Link Table ─────────────────────────────────────────── */
-    db.exec(`
         CREATE TABLE IF NOT EXISTS fir_suspects (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             fir_id      TEXT NOT NULL,
@@ -99,11 +163,8 @@ function initializeDb() {
             role        TEXT DEFAULT 'Accused',
             FOREIGN KEY (fir_id) REFERENCES fir_records(fir_id),
             FOREIGN KEY (suspect_id) REFERENCES suspects(suspect_id)
-        )
-    `);
+        );
 
-    /* ── Conversations (Chat History) ─────────────────────────────────────── */
-    db.exec(`
         CREATE TABLE IF NOT EXISTS conversations (
             id              INTEGER PRIMARY KEY AUTOINCREMENT,
             session_id      TEXT NOT NULL,
@@ -114,11 +175,8 @@ function initializeDb() {
             confidence      REAL,
             language        TEXT DEFAULT 'en',
             timestamp       TEXT DEFAULT (datetime('now'))
-        )
-    `);
+        );
 
-    /* ── Users ────────────────────────────────────────────────────────────── */
-    db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             user_id     TEXT PRIMARY KEY,
             username    TEXT UNIQUE NOT NULL,
@@ -127,11 +185,8 @@ function initializeDb() {
             full_name   TEXT,
             district    TEXT,
             created_at  TEXT DEFAULT (datetime('now'))
-        )
-    `);
+        );
 
-    /* ── Indexes for query performance ────────────────────────────────────── */
-    db.exec(`
         CREATE INDEX IF NOT EXISTS idx_fir_district     ON fir_records(district);
         CREATE INDEX IF NOT EXISTS idx_fir_crime_type   ON fir_records(crime_type);
         CREATE INDEX IF NOT EXISTS idx_fir_date         ON fir_records(fir_date);
@@ -144,12 +199,9 @@ function initializeDb() {
     `);
 
     console.log('  ✔ Database tables initialized successfully');
-    return db;
+    return dbInstance;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════════
- *  closeDb() — Gracefully close the database connection
- * ═══════════════════════════════════════════════════════════════════════════════ */
 function closeDb() {
     if (dbInstance) {
         dbInstance.close();
