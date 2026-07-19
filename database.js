@@ -8,9 +8,12 @@
 
 const Database = require('better-sqlite3');
 const path = require('path');
+const os = require('os');
 
 /* ── Database file path ───────────────────────────────────────────────────── */
-const DB_PATH = path.join(__dirname, 'ksp_crime.db');
+const DB_PATH = process.env.X_ZOHO_CATALYST_LISTEN_PORT
+    ? path.join(os.tmpdir(), 'ksp_crime.db')
+    : path.join(__dirname, 'ksp_crime.db');
 
 /** @type {Database.Database | null} */
 let dbInstance = null;
