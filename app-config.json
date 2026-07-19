@@ -1,5 +1,5 @@
 {
-	"command": "npm start",
+	"command": "npm install && npm start",
 	"build_path": "./",
 	"stack": "node18",
 	"env_variables": {},
