@@ -459,56 +459,51 @@ app.get('*', (req, res) => {
  *  SERVER START
  * ═══════════════════════════════════════════════════════════════════════════════ */
 function startServer() {
-    // Initialize database
-    console.log('\n╔═══════════════════════════════════════════════════════════╗');
-    console.log('║   KSP Crime Database — Conversational AI Platform       ║');
-    console.log('╚═══════════════════════════════════════════════════════════╝\n');
-
-    console.log('  ⟳ Initializing database...');
-    initializeDb();
-
-    // Verify data exists
-    const db = getDb();
-    let firCount = 0;
     try {
-        firCount = db.prepare('SELECT COUNT(*) as c FROM fir_records').get().c;
-    } catch (e) {
-        console.log('  ⚠ Database tables not initialized.');
-    }
+        // Initialize database
+        console.log('\n╔═══════════════════════════════════════════════════════════╗');
+        console.log('║   KSP Crime Database — Conversational AI Platform       ║');
+        console.log('╚═══════════════════════════════════════════════════════════╝\n');
 
-    if (firCount === 0) {
-        console.log('  ⚠ No data found. Seeding database automatically...');
+        console.log('  ⟳ Initializing database...');
+        initializeDb();
+
+        // Verify data exists
+        const db = getDb();
+        let firCount = 0;
         try {
-            // Require the seed file to execute it
-            require('./seed-data');
-            // Re-fetch connection as seed-data closes it
-            const newDb = getDb();
-            const newCount = newDb.prepare('SELECT COUNT(*) as c FROM fir_records').get().c;
-            console.log(`  ✔ Database seeded successfully: ${newCount} FIR records`);
-        } catch (err) {
-            console.error('  ✖ Auto-seeding failed:', err.message);
+            firCount = db.prepare('SELECT COUNT(*) as c FROM fir_records').get().c;
+        } catch (e) {
+            console.log('  ⚠ Database tables not initialized.');
         }
-    } else {
-        console.log(`  ✔ Database loaded: ${firCount} FIR records`);
-    }
 
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`  ✔ Server running on http://0.0.0.0:${PORT}`);
-        console.log(`  ✔ API ready at http://0.0.0.0:${PORT}/api`);
-        console.log('\n  Routes:');
-        console.log('    POST /api/auth/login          — Login');
-        console.log('    GET  /api/auth/me              — Current user');
-        console.log('    POST /api/chat                 — AI Chat');
-        console.log('    GET  /api/chat/history/:sid     — Chat history');
-        console.log('    GET  /api/stats/overview        — Dashboard');
-        console.log('    GET  /api/stats/by-district     — District breakdown');
-        console.log('    GET  /api/stats/by-type         — Crime types');
-        console.log('    GET  /api/stats/trends          — Monthly trends');
-        console.log('    GET  /api/suspects/:id          — Suspect details');
-        console.log('    GET  /api/suspects/:id/network  — Suspect network');
-        console.log('    GET  /api/fir/:id               — FIR details');
-        console.log('    GET  /api/export/pdf/:sid       — Export chat\n');
-    });
+        if (firCount === 0) {
+            console.log('  ⚠ No data found. Seeding database automatically...');
+            try {
+                require('./seed-data');
+                const newDb = getDb();
+                const newCount = newDb.prepare('SELECT COUNT(*) as c FROM fir_records').get().c;
+                console.log(`  ✔ Database seeded successfully: ${newCount} FIR records`);
+            } catch (err) {
+                console.error('  ✖ Auto-seeding failed:', err.message);
+            }
+        } else {
+            console.log(`  ✔ Database loaded: ${firCount} FIR records`);
+        }
+
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`  ✔ Server running on http://0.0.0.0:${PORT}`);
+        });
+    } catch (e) {
+        // Fallback server to show the error on Catalyst
+        const fallbackApp = express();
+        fallbackApp.all('*', (req, res) => {
+            res.status(200).send(`Startup Error: ${e.message}\n\nStack:\n${e.stack}`);
+        });
+        fallbackApp.listen(PORT, '0.0.0.0', () => {
+            console.log(`Fallback error server running on port ${PORT}`);
+        });
+    }
 }
 
 startServer();
